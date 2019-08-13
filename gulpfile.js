@@ -1,51 +1,80 @@
-var gulp = require('gulp')
-var concat = require('gulp-concat')
-var uglify = require('gulp-uglify')
-var rename = require('gulp-rename')
-var cleanCSS = require('gulp-clean-css')
-var del = require('del')
-var sass = require('gulp-sass')
-var browserSync = require('browser-sync').create()
+const {
+  src,
+  dest,
+  watch,
+  series,
+  parallel,
+  task,
+} = require('gulp');
+const concat = require('gulp-concat');
+const uglify = require('gulp-uglify');
+const rename = require('gulp-rename');
+const cleanCSS = require('gulp-clean-css');
+const del = require('del');
+const sass = require('gulp-sass');
+const browserSync = require('browser-sync').create();
+const inject = require('gulp-inject');
 
-var paths = {
+const PATHES = {
   styles: {
-    src: 'src/**/*.scss',
+    src: 'src/styles/**/*.scss',
     dest: 'public'
-  }
+  },
+  html: {
+    src: 'src/index.html',
+    dest: 'public',
+  },
 };
 
 function clean() {
-  return del([ 'assets' ]);
+  return del([ PATHES.styles.dest ]);
 }
 
 function styles() {
-  return gulp.src(paths.styles.src)
+  return src(PATHES.styles.src)
     .pipe(sass().on('error', sass.logError))
     .pipe(cleanCSS())
     .pipe(concat('main.min.css'))
-    .pipe(gulp.dest(paths.styles.dest))
+    .pipe(dest(PATHES.styles.dest));
 }
 
-function watch() {
-  gulp.watch(paths.styles.src, styles)
+function watchStyles() {
+  watch(PATHES.styles.src, styles);
+}
+
+function html() {
+  return src(PATHES.html.src)
+  .pipe(dest(PATHES.html.dest))
+  .pipe(src(PATHES.html.dest))
+  .pipe(
+    inject(
+      src([ PATHES.styles.dest + '/**/*.css' ], { read: false }),
+      { relative: true },
+    )
+  )
+  .pipe(dest(PATHES.html.dest))
+}
+
+function watchHtml() {
+  watch(PATHES.html.src, html);
 }
 
 function serve() {
-    browserSync.init({
+  browserSync
+    .init({
       server: 'public'
-    })
+    });
   
-    browserSync.watch('public/**/*.*').on('change', browserSync.reload)
+  browserSync.watch('public/**/*.*').on('change', browserSync.reload);
 }
-  
-exports.serve = serve
-exports.clean = clean
-exports.styles = styles
-exports.watch = watch
 
-var dev = gulp.parallel(serve, watch)
-var build = gulp.series(clean, styles)
+const build = series(clean, styles, html);
+const dev = series(
+  build,
+  parallel(serve, watchStyles, watchHtml),
+);
 
-gulp.task('build', build)
+task('build', build);
+task('serve', dev);
 
-gulp.task('default', dev)
+task('default', dev);
