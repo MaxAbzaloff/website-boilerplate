@@ -18,7 +18,8 @@ const PATHES = {
     dest: "public"
   },
   images: {
-    src: "src/assets/*.+(png|jpg|gif)",
+    src: "src/assets/*",
+    deeperSrc: "src/assets/*/*",
     dest: "public/assets"
   }
 };
@@ -52,7 +53,7 @@ function html() {
 }
 
 function images() {
-  return src(PATHES.images.src)
+  return src([PATHES.images.src, PATHES.images.deeperSrc])
     .pipe(changed(PATHES.images.dest))
     .pipe(image())
     .pipe(dest(PATHES.images.dest));
