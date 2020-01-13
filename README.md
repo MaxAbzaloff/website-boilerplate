@@ -20,16 +20,17 @@ This project is boilerplate for html and css work.
 
 ```
 
-*_Gulp will inject all styles automatically_
+\*_Gulp will inject all styles automatically_
 
 ### How to
 
-Inside __index.html__ you can implement any html logic and components structure. 
-Inside __styles__ directory you may seen several directories.
-* __components__ - is for BEM components (standalone independent elements)
-* __helpers__ - variables, mixins, postcards and helper functions
-* __layouts__ - styles which defines where components places have to be
-* __pages__ - some special styles for concrete web pages
+Inside **index.html** you can implement any html logic and components structure.
+Inside **styles** directory you may seen several directories.
+
+- **components** - is for BEM components (standalone independent elements)
+- **helpers** - variables, mixins, postcards and helper functions
+- **layouts** - styles which defines where components places have to be
+- **pages** - some special styles for concrete web pages
 
 ## Gulp tasks
 
@@ -38,7 +39,8 @@ Inside __styles__ directory you may seen several directories.
 │ └─┬ <series>
 │   ├── clean
 │   ├── styles
-│   └── html
+│   ├── html
+│   └── images
 ├─┬ serve
 │ └─┬ <series>
 │   ├─┬ <series>
@@ -61,7 +63,6 @@ Inside __styles__ directory you may seen several directories.
       └── watchHtml
 ```
 
-*_default command is serve_
+\*_default command is serve_
 
-
-*@author* [**Max Abzaloff**](https://github.com/MaxAbzaloff)
+_@author_ [**Max Abzaloff**](https://github.com/MaxAbzaloff)
