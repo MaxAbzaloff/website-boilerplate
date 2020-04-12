@@ -7,21 +7,27 @@ const browserSync = require("browser-sync").create();
 const inject = require("gulp-inject");
 const image = require("gulp-image");
 const changed = require("gulp-changed");
+const uglify = require("gulp-uglify");
+const rename = require("gulp-rename");
 
 const PATHES = {
   styles: {
     src: "src/styles/**/*.scss",
-    dest: "public"
+    dest: "public",
   },
   html: {
     src: "src/index.html",
-    dest: "public"
+    dest: "public",
   },
   images: {
     src: "src/assets/*",
     deeperSrc: "src/assets/*/*",
-    dest: "public/assets"
-  }
+    dest: "public/assets",
+  },
+  scripts: {
+    src: "src/scripts/*.js",
+    dest: "public",
+  },
 };
 
 function clean() {
@@ -36,6 +42,13 @@ function styles() {
     .pipe(dest(PATHES.styles.dest));
 }
 
+function js() {
+  return src(PATHES.scripts.src)
+    .pipe(uglify())
+    .pipe(rename({ extname: ".min.js" }))
+    .pipe(dest(PATHES.scripts.dest));
+}
+
 function watchStyles() {
   watch(PATHES.styles.src, styles);
 }
@@ -46,7 +59,12 @@ function html() {
     .pipe(src(PATHES.html.dest))
     .pipe(
       inject(src([PATHES.styles.dest + "/**/*.css"], { read: false }), {
-        relative: true
+        relative: true,
+      })
+    )
+    .pipe(
+      inject(src([PATHES.scripts.dest + "/**/*.js"], { read: false }), {
+        relative: true,
       })
     )
     .pipe(dest(PATHES.html.dest));
@@ -63,16 +81,20 @@ function watchHtml() {
   watch(PATHES.html.src, html);
 }
 
+function watchJS() {
+  watch(PATHES.scripts.src, js);
+}
+
 function serve() {
   browserSync.init({
-    server: "public"
+    server: "public",
   });
 
   browserSync.watch("public/**/*.*").on("change", browserSync.reload);
 }
 
-const build = series(clean, styles, html, images);
-const dev = series(build, parallel(serve, watchStyles, watchHtml));
+const build = series(clean, styles, js, html, images);
+const dev = series(build, parallel(serve, watchStyles, watchJS, watchHtml));
 
 task("build", build);
 task("serve", dev);
